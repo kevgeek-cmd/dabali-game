@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DABALI 🇨🇮</title>
+    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8B4513">
+    <link rel="icon" type="image/png" href="assets/icone_dabali.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DABALI">
+    <link rel="apple-touch-icon" href="assets/icone_dabali.png">
+    <link rel="apple-touch-startup-image" href="assets/splash.jpg">
+</head>
+<body>
+    <div id="splash-screen">
+        <img src="assets/icone_dabali.png" alt="Dabali Logo">
+        <div class="loading-bar">
+            <div class="progress"></div>
+        </div>
+        <button id="start-btn" class="hidden">JOUER</button>
+    </div>
+
+    <!-- Drawer Menu -->
+    <div id="drawer-overlay" class="hidden"></div>
+    <div id="drawer-menu">
+        <div class="drawer-header">
+            <h2>MENU</h2>
+            <button id="close-drawer"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="drawer-content">
+            <div class="drawer-item">
+                <span>Son</span>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="drawer-item">
+                <span>Vibrations</span>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="drawer-item">
+                <span>Mode Nuit</span>
+                <label class="switch">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            
+            <div class="drawer-item" id="quit-btn" style="cursor:pointer; color: red;">
+                <span>Quitter le jeu</span>
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+
+            <div class="credits-section">
+                <h3>Crédits</h3>
+                <p>Ce jeu est développé par <strong>Assamoi Kevin Stéphane</strong></p>
+                <p class="role">Référent Digital</p>
+                <p class="vibe">✨ C'est du Vibe Coding avec l'IA ✨</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div id="header">
+            <div class="header-top">
+                <button id="menu-btn"><i class="fas fa-bars"></i></button>
+                <div class="level-badge">NIVEAU <span id="level-display">1</span></div>
+                <div class="timer-badge">⏳ <span id="timer-display">01:30</span></div>
+                <button id="pause-btn" class="header-btn"><i class="fas fa-pause"></i></button>
+            </div>
+            <div class="header-stats">
+                <div class="stat-box">
+                    <span class="stat-icon">🔄</span>
+                    <span id="moves-display">20</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-icon">⭐</span>
+                    <span id="score-display">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Name Input Modal -->
+        <div id="name-modal-overlay" class="modal-overlay">
+            <div class="modal-content">
+                <h2 class="modal-title">Bienvenue !</h2>
+                <p class="modal-message">Entre ton prénom chef :</p>
+                <input type="text" id="player-name-input" placeholder="Ton prénom" maxlength="12" autocomplete="off">
+                <button id="start-game-btn" class="modal-btn">C'est parti !</button>
+            </div>
+        </div>
+
+        <div id="game-board">
+            <div id="grid"></div>
+        </div>
+
+        <!-- Combo Message -->
+        <div id="combo-message" class="hidden">BON DABALI !</div>
+
+        <!-- Footer: Objectifs visuels -->
+        <div id="footer-goals">
+            <!-- Goals generated dynamically -->
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="hidden">
+        <div id="modal-content">
+            <h2 id="modal-title">Niveau Terminé !</h2>
+            <div id="modal-stars">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+            </div>
+            <p id="modal-message">Score: 1250</p>
+            <button id="modal-btn">Niveau Suivant</button>
+        </div>
+    </div>
+
+    <script src="script.js?v=5"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => {
+                    console.log('SW enregistré');
+                    // Check for updates
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed') {
+                                if (navigator.serviceWorker.controller) {
+                                    console.log('Nouveau contenu disponible - Veuillez rafraîchir.');
+                                    // Optional: force reload
+                                    // window.location.reload(); 
+                                }
+                            }
+                        };
+                    };
+                })
+                .catch(err => console.log('Erreur SW', err));
+        }
+    </script>
+</body>
+</html>

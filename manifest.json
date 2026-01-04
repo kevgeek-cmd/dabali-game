@@ -1,0 +1,22 @@
+{
+    "name": "DABALI - Puzzle Gourmand",
+    "short_name": "DABALI",
+    "description": "Un jeu de match-3 aux saveurs ivoiriennes. Préparez le meilleur Dabali !",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#FF8C00",
+    "theme_color": "#8B4513",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "assets/icone_dabali.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "assets/icone_dabali.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
