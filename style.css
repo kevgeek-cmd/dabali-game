@@ -151,12 +151,13 @@ body {
 #player-name-input {
     width: 80%;
     padding: 10px;
-    margin: 15px 0;
+    margin: 15px auto; /* Centering with auto margins */
     border: 2px solid #8B4513;
     border-radius: 8px;
     font-size: 1.2rem;
     text-align: center;
     font-family: 'Comic Sans MS', cursive, sans-serif;
+    display: block; /* Ensure block display for margin auto to work */
 }
 
 #game-board {

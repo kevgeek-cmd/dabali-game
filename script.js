@@ -16,11 +16,33 @@ const OBSTACLES = {
 
 // LEVELS CONFIG
 const LEVELS = [
+    // Niveaux 1-5 (Intro)
     { id: 1, moves: 20, goals: { attieke: 10, poisson: 10 } },
     { id: 2, moves: 25, goals: { attieke: 10, poisson: 10, piment: 10 } },
-    { id: 3, moves: 30, goals: { attieke: 15, poisson: 15, huile: 10 }, obstacles: { count: 5 } },
-    { id: 4, moves: 30, goals: { attieke: 15, poisson: 15, piment: 15, tomate: 10 }, obstacles: { count: 8 } },
-    { id: 5, moves: 35, goals: { attieke: 20, poisson: 20, piment: 20, oignon: 15, huile: 15 }, obstacles: { count: 12 } }
+    { id: 3, moves: 30, goals: { attieke: 15, poisson: 15, huile: 10 }, obstacles: { count: 3 } },
+    { id: 4, moves: 30, goals: { attieke: 15, poisson: 15, piment: 15, tomate: 10 }, obstacles: { count: 5 } },
+    { id: 5, moves: 35, goals: { attieke: 20, poisson: 20, piment: 20, oignon: 15, huile: 15 }, obstacles: { count: 6 } },
+
+    // Niveaux 6-10 (Difficulté Moyenne - Plus d'obstacles)
+    { id: 6, moves: 30, goals: { maggi: 15, huile: 15, tomate: 15 }, obstacles: { count: 8 } },
+    { id: 7, moves: 30, goals: { attieke: 25, poisson: 25 }, obstacles: { count: 10 } },
+    { id: 8, moves: 35, goals: { piment: 30, oignon: 30, maggi: 10 }, obstacles: { count: 12 } },
+    { id: 9, moves: 35, goals: { attieke: 20, poisson: 20, huile: 20, tomate: 20 }, obstacles: { count: 10 } },
+    { id: 10, moves: 40, goals: { maggi: 25, piment: 25, oignon: 25 }, obstacles: { count: 14 } },
+
+    // Niveaux 11-15 (Difficile - Beaucoup de caisses)
+    { id: 11, moves: 30, goals: { attieke: 50 }, obstacles: { count: 15 } },
+    { id: 12, moves: 35, goals: { poisson: 30, huile: 30 }, obstacles: { count: 16 } },
+    { id: 13, moves: 40, goals: { tomate: 20, oignon: 20, piment: 20, maggi: 20 }, obstacles: { count: 18 } },
+    { id: 14, moves: 25, goals: { attieke: 15, poisson: 15 }, obstacles: { count: 20 } }, // Niveau "Sprint" (peu de moves, bcp d'obstacles)
+    { id: 15, moves: 45, goals: { huile: 40, maggi: 40 }, obstacles: { count: 15 } },
+
+    // Niveaux 16-20 (Expert - Le vrai Dabali)
+    { id: 16, moves: 35, goals: { attieke: 30, poisson: 30, piment: 30 }, obstacles: { count: 20 } },
+    { id: 17, moves: 40, goals: { tomate: 50 }, obstacles: { count: 22 } },
+    { id: 18, moves: 30, goals: { maggi: 10, huile: 10, piment: 10, oignon: 10, tomate: 10, attieke: 10, poisson: 10 }, obstacles: { count: 10 } }, // "La Totale"
+    { id: 19, moves: 50, goals: { attieke: 40, poisson: 40, huile: 40 }, obstacles: { count: 24 } },
+    { id: 20, moves: 60, goals: { attieke: 100, poisson: 100 }, obstacles: { count: 5 } } // Niveau Final "Le Festin" (Score attack)
 ];
 
 // RECETTES SPÉCIALES (DABALI)
@@ -279,7 +301,7 @@ function resetHintTimer() {
     clearHints();
     
     if (moves > 0 && !isPaused && !isProcessing) {
-        hintTimeout = setTimeout(showHint, 5000);
+        hintTimeout = setTimeout(showHint, 10000);
     }
 }
 
