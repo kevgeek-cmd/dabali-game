@@ -214,6 +214,23 @@ const soundManager = {
     },
     playWin: () => {
         [300, 400, 500, 600, 800].forEach((f, i) => setTimeout(() => soundManager.playTone(f, 'triangle', 0.2), i * 100));
+    },
+    playError: () => {
+        soundManager.playTone(220, 'sawtooth', 0.12);
+        setTimeout(() => soundManager.playTone(160, 'sawtooth', 0.18), 100);
+    },
+    playAdStart: () => {
+        soundManager.playTone(700, 'sine', 0.08);
+        setTimeout(() => soundManager.playTone(900, 'sine', 0.1), 80);
+    },
+    playAdEnd: () => {
+        soundManager.playTone(480, 'triangle', 0.1);
+        setTimeout(() => soundManager.playTone(720, 'triangle', 0.14), 100);
+    },
+    playPromoSuccess: () => {
+        soundManager.playTone(550, 'square', 0.1);
+        setTimeout(() => soundManager.playTone(750, 'square', 0.14), 90);
+        setTimeout(() => soundManager.playTone(950, 'square', 0.16), 180);
     }
 };
 
@@ -234,11 +251,15 @@ function redeemPromoCode() {
     const raw = promoCodeInput.value.trim().toUpperCase();
     if (!raw) {
         promoMessageEl.innerText = 'Code invalide.';
+        soundManager.playError();
+        vibrate([120, 60, 120]);
         return;
     }
     const config = PROMO_CODES[raw];
     if (!config) {
         promoMessageEl.innerText = 'Code inconnu.';
+        soundManager.playError();
+        vibrate([120, 60, 120]);
         return;
     }
     if (config.type === 'unlock_level') {
@@ -254,6 +275,8 @@ function redeemPromoCode() {
         localStorage.setItem(STORAGE_KEYS.freeSuperCombos, String(freeSuperCombos));
         updateFreeSuperDisplay();
     }
+    soundManager.playPromoSuccess();
+    vibrate([80, 40, 80, 40, 120]);
     promoMessageEl.innerText = config.message;
 }
 
@@ -279,8 +302,10 @@ function showAdForLevel(completedLevel) {
     let remaining = 10;
     adCountdownEl.innerText = String(remaining);
     adContinueBtn.disabled = true;
+    soundManager.playAdStart();
+    vibrate([60, 40, 60]);
     adModalOverlay.classList.remove('hidden');
-    adModalOverlay.style.display = 'flex';
+    adModalOverlay.classList.add('active');
     const interval = setInterval(() => {
         remaining -= 1;
         adCountdownEl.innerText = String(remaining);
@@ -290,8 +315,12 @@ function showAdForLevel(completedLevel) {
         }
     }, 1000);
     adContinueBtn.onclick = () => {
-        adModalOverlay.classList.add('hidden');
-        adModalOverlay.style.display = 'none';
+        adModalOverlay.classList.remove('active');
+        setTimeout(() => {
+            adModalOverlay.classList.add('hidden');
+        }, 300);
+        soundManager.playAdEnd();
+        vibrate([40, 40, 120]);
         nextLevel();
     };
 }
@@ -360,7 +389,7 @@ function initGame() {
                     // Show Name Modal after Splash
                     if (nameModalOverlay) {
                         nameModalOverlay.classList.remove('hidden');
-                        nameModalOverlay.style.display = 'flex'; // Ensure flex for centering
+                        nameModalOverlay.classList.add('active');
                         if (playerNameInput) playerNameInput.focus();
                     }
                 }, 500);
@@ -401,8 +430,10 @@ function initGame() {
                 localStorage.setItem(STORAGE_KEYS.playerName, playerName);
             }
             if (nameModalOverlay) {
-                nameModalOverlay.classList.add('hidden');
-                nameModalOverlay.style.display = 'none';
+                nameModalOverlay.classList.remove('active');
+                setTimeout(() => {
+                    nameModalOverlay.classList.add('hidden');
+                }, 300);
             }
             soundManager.playWin(); // Welcome sound
             const savedLevel = parseInt(localStorage.getItem(STORAGE_KEYS.currentLevel), 10);
@@ -412,7 +443,7 @@ function initGame() {
             const maxUnlocked = Number.isFinite(maxUnlockedRaw) ? maxUnlockedRaw : 1;
             if (maxUnlocked <= 1 && level === 1 && tutorialOverlay) {
                 tutorialOverlay.classList.remove('hidden');
-                tutorialOverlay.style.display = 'flex';
+                tutorialOverlay.classList.add('active');
             } else {
                 openLevelSelect();
             }
@@ -478,7 +509,7 @@ function initGame() {
             promoMessageEl.innerText = '';
             promoCodeInput.value = '';
             promoModalOverlay.classList.remove('hidden');
-            promoModalOverlay.style.display = 'flex';
+            promoModalOverlay.classList.add('active');
             promoCodeInput.focus();
         });
         promoSubmitBtn.addEventListener('click', () => {
@@ -493,15 +524,22 @@ function initGame() {
 
     if (levelSelectCloseBtn) {
         levelSelectCloseBtn.addEventListener('click', () => {
-            if (levelSelectOverlay) levelSelectOverlay.classList.add('hidden');
+            if (levelSelectOverlay) {
+                levelSelectOverlay.classList.remove('active');
+                setTimeout(() => {
+                    levelSelectOverlay.classList.add('hidden');
+                }, 300);
+            }
         });
     }
 
     if (tutorialOkBtn) {
         tutorialOkBtn.addEventListener('click', () => {
             if (tutorialOverlay) {
-                tutorialOverlay.classList.add('hidden');
-                tutorialOverlay.style.display = 'none';
+                tutorialOverlay.classList.remove('active');
+                setTimeout(() => {
+                    tutorialOverlay.classList.add('hidden');
+                }, 300);
             }
             openLevelSelect();
         });
@@ -534,6 +572,7 @@ function openLevelSelect() {
         levelGridEl.appendChild(btn);
     });
     levelSelectOverlay.classList.remove('hidden');
+    levelSelectOverlay.classList.add('active');
 }
 
 function openDrawer() {
@@ -735,9 +774,9 @@ function updateTimerUI() {
 }
 
 function handleGameOver() {
-    isProcessing = true; // Block inputs
+    isProcessing = true;
     setTimeout(() => {
-        vibrate([200, 100, 200]);
+        vibrate([200, 120, 200, 120, 260]);
         document.getElementById('modal-title').innerText = "YAKO !";
         document.getElementById('modal-message').innerHTML = `<b>${playerName}</b>, le temps est écoulé !<br>Score : ${score}`;
         document.getElementById('modal-btn').innerText = "Recommencer";
@@ -746,6 +785,7 @@ function handleGameOver() {
             startLevel(level);
         };
         modalOverlay.classList.remove('hidden');
+        modalOverlay.classList.add('active');
     }, 500);
 }
 
@@ -1417,11 +1457,12 @@ function checkGameEnd() {
     }
 
     if (allGoalsCompleted) {
-        clearInterval(timerInterval); // Stop Timer
+        clearInterval(timerInterval);
         setTimeout(() => {
             showBonDabali(); // Extra celebration
             setTimeout(() => {
-                vibrate([150, 80, 150, 80, 300]);
+                vibrate([150, 80, 150, 80, 320]);
+                soundManager.playWin();
                 const levelConfig = LEVELS.find(l => l.id === level) || LEVELS[0];
                 const stars = computeStars(score, levelConfig);
                 saveBestScoreAndStars(level, score, stars);
@@ -1434,14 +1475,18 @@ function checkGameEnd() {
                 document.getElementById('modal-message').innerText = `Bravo ${playerName} ! Score: ${score}`;
                 document.getElementById('modal-btn').innerText = "Niveau Suivant";
                 modalBtn.onclick = () => {
-                    modalOverlay.classList.add('hidden');
-                    if (shouldShowAdAfterLevel(level, previousMax, newMax)) {
-                        showAdForLevel(level);
-                    } else {
-                        nextLevel();
-                    }
+                    modalOverlay.classList.remove('active');
+                    setTimeout(() => {
+                        modalOverlay.classList.add('hidden');
+                        if (shouldShowAdAfterLevel(level, previousMax, newMax)) {
+                            showAdForLevel(level);
+                        } else {
+                            nextLevel();
+                        }
+                    }, 300);
                 };
                 modalOverlay.classList.remove('hidden');
+                modalOverlay.classList.add('active');
             }, 2000);
         }, 500);
         return;
@@ -1459,6 +1504,7 @@ function checkGameEnd() {
                 startLevel(level);
             };
             modalOverlay.classList.remove('hidden');
+            modalOverlay.classList.add('active');
         }, 500);
     }
 }
