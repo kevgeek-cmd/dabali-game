@@ -18,9 +18,12 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    touch-action: none; /* Important pour le swipe sans scroll */
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    touch-action: pan-y;
 }
 
 body {
@@ -236,6 +239,7 @@ body {
     gap: 4px;
     width: 100%;
     height: 100%;
+    touch-action: none; /* bloque le scroll pendant les swipes sur la grille */
 }
 
 .tile {
