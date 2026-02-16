@@ -11,57 +11,170 @@ const INGREDIENTS = [
 ];
 
 const OBSTACLES = {
-    CRATE: { name: 'Caisse', emoji: '📦', id: 'crate', destructible: true }
+    CRATE: { name: 'Caisse', emoji: '📦', id: 'crate', destructible: true, immovable: true },
+    FROZEN: { name: 'Bloc glacé', emoji: '🧊', id: 'frozen', destructible: true, immovable: true },
+    ROCK: { name: 'Roche', emoji: '🪨', id: 'rock', destructible: false, immovable: true }
 };
 
-// LEVELS CONFIG
+const STORAGE_KEYS = {
+    sound: 'dabali_sound',
+    vibration: 'dabali_vibration',
+    theme: 'dabali_theme',
+    playerName: 'dabali_player_name',
+    currentLevel: 'dabali_current_level',
+    maxUnlockedLevel: 'dabali_max_unlocked_level',
+    bestScores: 'dabali_best_scores',
+    bestStars: 'dabali_best_stars',
+    freeSuperCombos: 'dabali_free_super_combos'
+};
+
 const LEVELS = [
-    // Niveaux 1-5 (Intro)
     { id: 1, moves: 20, goals: { attieke: 10, poisson: 10 } },
     { id: 2, moves: 25, goals: { attieke: 10, poisson: 10, piment: 10 } },
     { id: 3, moves: 30, goals: { attieke: 15, poisson: 15, huile: 10 }, obstacles: { count: 3 } },
     { id: 4, moves: 30, goals: { attieke: 15, poisson: 15, piment: 15, tomate: 10 }, obstacles: { count: 5 } },
     { id: 5, moves: 35, goals: { attieke: 20, poisson: 20, piment: 20, oignon: 15, huile: 15 }, obstacles: { count: 6 } },
 
-    // Niveaux 6-10 (Difficulté Moyenne - Plus d'obstacles)
     { id: 6, moves: 30, goals: { maggi: 15, huile: 15, tomate: 15 }, obstacles: { count: 8 } },
     { id: 7, moves: 30, goals: { attieke: 25, poisson: 25 }, obstacles: { count: 10 } },
     { id: 8, moves: 35, goals: { piment: 30, oignon: 30, maggi: 10 }, obstacles: { count: 12 } },
     { id: 9, moves: 35, goals: { attieke: 20, poisson: 20, huile: 20, tomate: 20 }, obstacles: { count: 10 } },
     { id: 10, moves: 40, goals: { maggi: 25, piment: 25, oignon: 25 }, obstacles: { count: 14 } },
 
-    // Niveaux 11-15 (Difficile - Beaucoup de caisses)
     { id: 11, moves: 30, goals: { attieke: 50 }, obstacles: { count: 15 } },
     { id: 12, moves: 35, goals: { poisson: 30, huile: 30 }, obstacles: { count: 16 } },
     { id: 13, moves: 40, goals: { tomate: 20, oignon: 20, piment: 20, maggi: 20 }, obstacles: { count: 18 } },
-    { id: 14, moves: 25, goals: { attieke: 15, poisson: 15 }, obstacles: { count: 20 } }, // Niveau "Sprint" (peu de moves, bcp d'obstacles)
+    { id: 14, moves: 25, goals: { attieke: 15, poisson: 15 }, obstacles: { count: 20 } },
     { id: 15, moves: 45, goals: { huile: 40, maggi: 40 }, obstacles: { count: 15 } },
 
-    // Niveaux 16-20 (Expert - Le vrai Dabali)
     { id: 16, moves: 35, goals: { attieke: 30, poisson: 30, piment: 30 }, obstacles: { count: 20 } },
     { id: 17, moves: 40, goals: { tomate: 50 }, obstacles: { count: 22 } },
-    { id: 18, moves: 30, goals: { maggi: 10, huile: 10, piment: 10, oignon: 10, tomate: 10, attieke: 10, poisson: 10 }, obstacles: { count: 10 } }, // "La Totale"
+    { id: 18, moves: 30, goals: { maggi: 10, huile: 10, piment: 10, oignon: 10, tomate: 10, attieke: 10, poisson: 10 }, obstacles: { count: 10 } },
     { id: 19, moves: 50, goals: { attieke: 40, poisson: 40, huile: 40 }, obstacles: { count: 24 } },
-    { id: 20, moves: 60, goals: { attieke: 100, poisson: 100 }, obstacles: { count: 5 } } // Niveau Final "Le Festin" (Score attack)
+    { id: 20, moves: 60, goals: { attieke: 100, poisson: 100 }, obstacles: { count: 5 } },
+
+    { id: 21, moves: 30, goals: { attieke: 25, poisson: 25, maggi: 15 }, obstacles: { count: 10 } },
+    { id: 22, moves: 32, goals: { piment: 30, huile: 20, tomate: 20 }, obstacles: { count: 12 } },
+    { id: 23, moves: 34, goals: { attieke: 30, poisson: 20, oignon: 20 }, obstacles: { count: 14 } },
+    { id: 24, moves: 36, goals: { tomate: 30, maggi: 20, huile: 20 }, obstacles: { count: 14 } },
+    { id: 25, moves: 38, goals: { attieke: 40, poisson: 40, piment: 25 }, obstacles: { count: 16 } },
+    { id: 26, moves: 32, goals: { oignon: 30, tomate: 30 }, obstacles: { count: 18 } },
+    { id: 27, moves: 35, goals: { attieke: 35, poisson: 35, huile: 25 }, obstacles: { count: 18 } },
+    { id: 28, moves: 37, goals: { maggi: 30, piment: 30, oignon: 20 }, obstacles: { count: 20 } },
+    { id: 29, moves: 40, goals: { attieke: 45, poisson: 45 }, obstacles: { count: 20 } },
+    { id: 30, moves: 42, goals: { huile: 35, maggi: 35, tomate: 30 }, obstacles: { count: 22 } },
+
+    { id: 31, moves: 34, goals: { attieke: 40, poisson: 30, piment: 30 }, obstacles: { count: 22 } },
+    { id: 32, moves: 36, goals: { tomate: 35, oignon: 35 }, obstacles: { count: 22 } },
+    { id: 33, moves: 38, goals: { maggi: 30, huile: 30, piment: 30 }, obstacles: { count: 24 } },
+    { id: 34, moves: 40, goals: { attieke: 50, poisson: 50 }, obstacles: { count: 24 } },
+    { id: 35, moves: 42, goals: { attieke: 40, poisson: 40, oignon: 30, tomate: 30 }, obstacles: { count: 26 } },
+    { id: 36, moves: 44, goals: { maggi: 40, huile: 40 }, obstacles: { count: 26 } },
+    { id: 37, moves: 34, goals: { piment: 45, tomate: 35 }, obstacles: { count: 28 } },
+    { id: 38, moves: 36, goals: { attieke: 45, poisson: 45, maggi: 25 }, obstacles: { count: 28 } },
+    { id: 39, moves: 38, goals: { huile: 40, oignon: 40 }, obstacles: { count: 30 } },
+    { id: 40, moves: 40, goals: { attieke: 60, poisson: 60 }, obstacles: { count: 30 } },
+
+    { id: 41, moves: 36, goals: { attieke: 50, poisson: 50, piment: 40 }, obstacles: { count: 30 } },
+    { id: 42, moves: 38, goals: { tomate: 50, oignon: 50 }, obstacles: { count: 30 } },
+    { id: 43, moves: 40, goals: { maggi: 45, huile: 45 }, obstacles: { count: 32 } },
+    { id: 44, moves: 42, goals: { attieke: 55, poisson: 55, tomate: 40 }, obstacles: { count: 32 } },
+    { id: 45, moves: 44, goals: { piment: 50, oignon: 50, maggi: 35 }, obstacles: { count: 34 } },
+    { id: 46, moves: 46, goals: { attieke: 60, poisson: 60, huile: 40 }, obstacles: { count: 34 } },
+    { id: 47, moves: 38, goals: { tomate: 55, maggi: 45 }, obstacles: { count: 36 } },
+    { id: 48, moves: 40, goals: { attieke: 65, poisson: 65 }, obstacles: { count: 36 } },
+    { id: 49, moves: 42, goals: { huile: 55, oignon: 55, piment: 45 }, obstacles: { count: 36 } },
+    { id: 50, moves: 45, goals: { attieke: 70, poisson: 70, maggi: 50 }, obstacles: { count: 38 } },
+
+    { id: 51, moves: 40, goals: { attieke: 80, poisson: 80 }, obstacles: { count: 38 } },
+    { id: 52, moves: 42, goals: { piment: 70, tomate: 70 }, obstacles: { count: 38 } },
+    { id: 53, moves: 44, goals: { maggi: 60, huile: 60, oignon: 50 }, obstacles: { count: 40 } },
+    { id: 54, moves: 46, goals: { attieke: 75, poisson: 75, piment: 60 }, obstacles: { count: 40 } },
+    { id: 55, moves: 48, goals: { tomate: 70, oignon: 70, maggi: 55 }, obstacles: { count: 40 } },
+    { id: 56, moves: 50, goals: { attieke: 90, poisson: 90 }, obstacles: { count: 40 } },
+    { id: 57, moves: 42, goals: { huile: 65, piment: 65 }, obstacles: { count: 42 } },
+    { id: 58, moves: 44, goals: { attieke: 80, poisson: 80, tomate: 60 }, obstacles: { count: 42 } },
+    { id: 59, moves: 46, goals: { maggi: 70, oignon: 70 }, obstacles: { count: 42 } },
+    { id: 60, moves: 50, goals: { attieke: 100, poisson: 100, huile: 80 }, obstacles: { count: 44 } },
+
+    { id: 61, moves: 42, goals: { attieke: 90, poisson: 90, piment: 70 }, obstacles: { count: 44 } },
+    { id: 62, moves: 44, goals: { tomate: 80, oignon: 80, maggi: 60 }, obstacles: { count: 44 } },
+    { id: 63, moves: 46, goals: { huile: 75, piment: 75 }, obstacles: { count: 46 } },
+    { id: 64, moves: 48, goals: { attieke: 95, poisson: 95, tomate: 70 }, obstacles: { count: 46 } },
+    { id: 65, moves: 50, goals: { maggi: 80, huile: 80, oignon: 70 }, obstacles: { count: 46 } },
+    { id: 66, moves: 52, goals: { attieke: 110, poisson: 110 }, obstacles: { count: 48 } },
+    { id: 67, moves: 44, goals: { piment: 85, tomate: 85 }, obstacles: { count: 48 } },
+    { id: 68, moves: 46, goals: { attieke: 100, poisson: 100, maggi: 80 }, obstacles: { count: 48 } },
+    { id: 69, moves: 48, goals: { huile: 90, oignon: 90 }, obstacles: { count: 50 } },
+    { id: 70, moves: 52, goals: { attieke: 120, poisson: 120, piment: 90 }, obstacles: { count: 50 } },
+
+    { id: 71, moves: 46, goals: { attieke: 110, poisson: 110, tomate: 90 }, obstacles: { count: 50 } },
+    { id: 72, moves: 48, goals: { maggi: 90, huile: 90, oignon: 80 }, obstacles: { count: 52 } },
+    { id: 73, moves: 50, goals: { attieke: 115, poisson: 115, piment: 95 }, obstacles: { count: 52 } },
+    { id: 74, moves: 52, goals: { tomate: 100, oignon: 100, maggi: 85 }, obstacles: { count: 52 } },
+    { id: 75, moves: 54, goals: { huile: 100, piment: 100 }, obstacles: { count: 54 } },
+    { id: 76, moves: 56, goals: { attieke: 130, poisson: 130 }, obstacles: { count: 54 } },
+    { id: 77, moves: 48, goals: { tomate: 110, maggi: 95 }, obstacles: { count: 54 } },
+    { id: 78, moves: 50, goals: { attieke: 125, poisson: 125, huile: 100 }, obstacles: { count: 56 } },
+    { id: 79, moves: 52, goals: { piment: 110, oignon: 110 }, obstacles: { count: 56 } },
+    { id: 80, moves: 56, goals: { attieke: 140, poisson: 140, maggi: 110 }, obstacles: { count: 56 } },
+
+    { id: 81, moves: 50, goals: { attieke: 130, poisson: 130, piment: 110 }, obstacles: { count: 58 } },
+    { id: 82, moves: 52, goals: { tomate: 120, oignon: 120, maggi: 100 }, obstacles: { count: 58 } },
+    { id: 83, moves: 54, goals: { huile: 110, piment: 120 }, obstacles: { count: 58 } },
+    { id: 84, moves: 56, goals: { attieke: 145, poisson: 145, tomate: 120 }, obstacles: { count: 60 } },
+    { id: 85, moves: 58, goals: { maggi: 120, huile: 120, oignon: 110 }, obstacles: { count: 60 } },
+    { id: 86, moves: 60, goals: { attieke: 150, poisson: 150, piment: 130 }, obstacles: { count: 60 } },
+    { id: 87, moves: 52, goals: { tomate: 130, maggi: 115 }, obstacles: { count: 62 } },
+    { id: 88, moves: 54, goals: { attieke: 155, poisson: 155, huile: 130 }, obstacles: { count: 62 } },
+    { id: 89, moves: 56, goals: { piment: 135, oignon: 130 }, obstacles: { count: 62 } },
+    { id: 90, moves: 60, goals: { attieke: 160, poisson: 160, maggi: 130 }, obstacles: { count: 64 } },
+
+    { id: 91, moves: 55, goals: { attieke: 160, poisson: 160, piment: 140 }, obstacles: { count: 64 } },
+    { id: 92, moves: 57, goals: { tomate: 140, oignon: 140, maggi: 130 }, obstacles: { count: 64 } },
+    { id: 93, moves: 59, goals: { huile: 130, piment: 145 }, obstacles: { count: 66 } },
+    { id: 94, moves: 61, goals: { attieke: 170, poisson: 170, tomate: 140 }, obstacles: { count: 66 } },
+    { id: 95, moves: 63, goals: { maggi: 140, huile: 140, oignon: 135 }, obstacles: { count: 66 } },
+    { id: 96, moves: 65, goals: { attieke: 180, poisson: 180, piment: 150 }, obstacles: { count: 68 } },
+    { id: 97, moves: 60, goals: { tomate: 150, maggi: 140 }, obstacles: { count: 68 } },
+    { id: 98, moves: 62, goals: { attieke: 190, poisson: 190, huile: 150 }, obstacles: { count: 68 } },
+    { id: 99, moves: 64, goals: { piment: 160, oignon: 150 }, obstacles: { count: 70 } },
+    { id: 100, moves: 70, goals: { attieke: 200, poisson: 200, maggi: 160, huile: 160 }, obstacles: { count: 70 } }
 ];
 
-// RECETTES SPÉCIALES (DABALI)
-// Si ces 3 ingrédients sont alignés (peu importe l'ordre), c'est un Dabali
 const RECIPES = [
-    ['attieke', 'poisson', 'piment'], // Garba
-    ['maggi', 'huile', 'piment'] // Sauce Pimentée
+    ['attieke', 'poisson', 'piment'],
+    ['maggi', 'huile', 'piment']
 ];
+
+const PROMO_CODES = {
+    'GARBA2025': { type: 'unlock_level', level: 30, message: 'Tu as débloqué les niveaux jusqu\'au 30.' },
+    'DABALI50': { type: 'unlock_level', level: 50, message: 'Tu as débloqué les niveaux jusqu\'au 50.' },
+    'SUPERDABALI': { type: 'free_super', count: 3, message: 'Tu as gagné 3 super combos.' }
+};
+
+function getLevelGroupName(levelId) {
+    if (levelId <= 10) return "Garba du quartier";
+    if (levelId <= 20) return "Dabali de Yopougon";
+    if (levelId <= 40) return "Dabali de Cocody";
+    if (levelId <= 60) return "Dabali de Treichville";
+    if (levelId <= 80) return "Dabali du marché";
+    return "Dabali de Côte d'Ivoire";
+}
 
 // STATE
-let grid = []; // 2D array [row][col]
+let grid = [];
 let score = 0;
 let moves = 20;
 let level = 1;
-let currentGoals = {}; // { id: count }
-let goalProgress = {}; // { id: current }
+let currentGoals = {};
+let goalProgress = {};
 let selectedTile = null;
 let isProcessing = false;
-let playerName = "Joueur"; // Default name
+let playerName = "Joueur";
+let isSoundOn = true;
+let isVibrationOn = true;
+let freeSuperCombos = 0;
 
 let timerInterval = null;
 let timeRemaining = 90; // 1m30s
@@ -75,6 +188,7 @@ const soundCtx = new AudioContext();
 
 const soundManager = {
     playTone: (freq, type, duration) => {
+        if (!isSoundOn) return;
         if (soundCtx.state === 'suspended') soundCtx.resume();
         const osc = soundCtx.createOscillator();
         const gain = soundCtx.createGain();
@@ -103,6 +217,85 @@ const soundManager = {
     }
 };
 
+function vibrate(pattern) {
+    if (!isVibrationOn) return;
+    if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
+function updateFreeSuperDisplay() {
+    const badge = document.getElementById('free-super-badge');
+    if (!badge) return;
+    badge.innerText = String(freeSuperCombos);
+    badge.style.display = freeSuperCombos > 0 ? 'inline-flex' : 'none';
+}
+
+function redeemPromoCode() {
+    if (!promoCodeInput || !promoMessageEl) return;
+    const raw = promoCodeInput.value.trim().toUpperCase();
+    if (!raw) {
+        promoMessageEl.innerText = 'Code invalide.';
+        return;
+    }
+    const config = PROMO_CODES[raw];
+    if (!config) {
+        promoMessageEl.innerText = 'Code inconnu.';
+        return;
+    }
+    if (config.type === 'unlock_level') {
+        const current = parseInt(localStorage.getItem(STORAGE_KEYS.maxUnlockedLevel), 10);
+        const maxUnlocked = Number.isFinite(current) ? current : 1;
+        const target = config.level;
+        if (target > maxUnlocked) {
+            localStorage.setItem(STORAGE_KEYS.maxUnlockedLevel, String(target));
+        }
+    }
+    if (config.type === 'free_super') {
+        freeSuperCombos += config.count;
+        localStorage.setItem(STORAGE_KEYS.freeSuperCombos, String(freeSuperCombos));
+        updateFreeSuperDisplay();
+    }
+    promoMessageEl.innerText = config.message;
+}
+
+function shouldShowAdAfterLevel(completedLevel, previousMax, newMax) {
+    if (newMax <= previousMax) return false;
+    if (completedLevel <= 0) return false;
+    return completedLevel % 3 === 0;
+}
+
+function showAdForLevel(completedLevel) {
+    if (!adModalOverlay || !adPartnerNameEl || !adCodeHintEl || !adCountdownEl || !adContinueBtn) {
+        nextLevel();
+        return;
+    }
+    const fakeAds = [
+        { partner: 'Garba Palace', code: 'GARBA2025', text: 'Code GARBA2025 pour débloquer des niveaux.' },
+        { partner: 'Dabali Street', code: 'DABALI50', text: 'Code DABALI50 pour avancer plus vite.' },
+        { partner: 'Super Sauce Piment', code: 'SUPERDABALI', text: 'Code SUPERDABALI pour des super combos.' }
+    ];
+    const ad = fakeAds[Math.floor(Math.random() * fakeAds.length)];
+    adPartnerNameEl.innerText = `${ad.partner}`;
+    adCodeHintEl.innerText = `Retient bien le code : ${ad.code}`;
+    let remaining = 10;
+    adCountdownEl.innerText = String(remaining);
+    adContinueBtn.disabled = true;
+    adModalOverlay.classList.remove('hidden');
+    adModalOverlay.style.display = 'flex';
+    const interval = setInterval(() => {
+        remaining -= 1;
+        adCountdownEl.innerText = String(remaining);
+        if (remaining <= 0) {
+            clearInterval(interval);
+            adContinueBtn.disabled = false;
+        }
+    }, 1000);
+    adContinueBtn.onclick = () => {
+        adModalOverlay.classList.add('hidden');
+        adModalOverlay.style.display = 'none';
+        nextLevel();
+    };
+}
+
 // DOM Elements
 const gridEl = document.getElementById('grid');
 const scoreEl = document.getElementById('score-display');
@@ -115,12 +308,31 @@ const timerEl = document.getElementById('timer-display');
 const nameModalOverlay = document.getElementById('name-modal-overlay');
 const playerNameInput = document.getElementById('player-name-input');
 const startGameBtn = document.getElementById('start-game-btn');
+const tutorialOverlay = document.getElementById('tutorial-overlay');
+const tutorialOkBtn = document.getElementById('tutorial-ok-btn');
+const levelGroupEl = document.getElementById('level-group-display');
+const promoModalOverlay = document.getElementById('promo-modal-overlay');
+const promoCodeInput = document.getElementById('promo-code-input');
+const promoSubmitBtn = document.getElementById('promo-submit-btn');
+const promoMessageEl = document.getElementById('promo-message');
+const adModalOverlay = document.getElementById('ad-modal-overlay');
+const adPartnerNameEl = document.getElementById('ad-partner-name');
+const adCodeHintEl = document.getElementById('ad-code-hint');
+const adCountdownEl = document.getElementById('ad-countdown');
+const adContinueBtn = document.getElementById('ad-continue-btn');
+const levelSelectOverlay = document.getElementById('level-select-overlay');
+const levelGridEl = document.getElementById('level-grid');
+const levelSelectCloseBtn = document.getElementById('level-select-close');
 // Menu Elements
 const btnMenu = document.getElementById('menu-btn');
 const drawerMenu = document.getElementById('drawer-menu');
 const drawerOverlay = document.getElementById('drawer-overlay');
 const closeDrawerBtn = document.getElementById('close-drawer');
+const openLevelMapBtn = document.getElementById('open-level-map');
+const promoCodeBtn = document.getElementById('promo-code-btn');
 const darkModeToggle = document.getElementById('dark-mode-toggle');
+const soundToggle = document.getElementById('sound-toggle');
+const vibrationToggle = document.getElementById('vibration-toggle');
 // Splash
 const splashScreen = document.getElementById('splash-screen');
 const startBtn = document.getElementById('start-btn');
@@ -156,19 +368,54 @@ function initGame() {
         });
     }
 
+    const savedTheme = localStorage.getItem(STORAGE_KEYS.theme);
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        if (darkModeToggle) darkModeToggle.checked = true;
+    }
+
+    const savedSound = localStorage.getItem(STORAGE_KEYS.sound);
+    if (savedSound) {
+        isSoundOn = savedSound === 'on';
+        if (soundToggle) soundToggle.checked = isSoundOn;
+    }
+
+    const savedVibration = localStorage.getItem(STORAGE_KEYS.vibration);
+    if (savedVibration) {
+        isVibrationOn = savedVibration === 'on';
+        if (vibrationToggle) vibrationToggle.checked = isVibrationOn;
+    }
+
+    const savedName = localStorage.getItem(STORAGE_KEYS.playerName);
+    if (savedName) {
+        playerName = savedName;
+        if (playerNameInput) playerNameInput.value = savedName;
+    }
+
     // Name Modal Logic
     if (startGameBtn) {
         startGameBtn.addEventListener('click', () => {
             const name = playerNameInput ? playerNameInput.value.trim() : '';
             if (name) {
                 playerName = name;
+                localStorage.setItem(STORAGE_KEYS.playerName, playerName);
             }
             if (nameModalOverlay) {
                 nameModalOverlay.classList.add('hidden');
                 nameModalOverlay.style.display = 'none';
             }
             soundManager.playWin(); // Welcome sound
-            startLevel(1);
+            const savedLevel = parseInt(localStorage.getItem(STORAGE_KEYS.currentLevel), 10);
+            const initialLevel = Number.isFinite(savedLevel) && savedLevel >= 1 ? savedLevel : 1;
+            level = initialLevel;
+            const maxUnlockedRaw = parseInt(localStorage.getItem(STORAGE_KEYS.maxUnlockedLevel), 10);
+            const maxUnlocked = Number.isFinite(maxUnlockedRaw) ? maxUnlockedRaw : 1;
+            if (maxUnlocked <= 1 && level === 1 && tutorialOverlay) {
+                tutorialOverlay.classList.remove('hidden');
+                tutorialOverlay.style.display = 'flex';
+            } else {
+                openLevelSelect();
+            }
         });
     }
 
@@ -176,19 +423,41 @@ function initGame() {
     if (btnMenu) btnMenu.addEventListener('click', openDrawer);
     if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeDrawer);
     if (drawerOverlay) drawerOverlay.addEventListener('click', closeDrawer);
-    
-    // Dark Mode
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-        if (darkModeToggle) darkModeToggle.checked = true;
+    if (openLevelMapBtn) {
+        openLevelMapBtn.addEventListener('click', () => {
+            closeDrawer();
+            openLevelSelect();
+        });
     }
     
+    // Dark Mode
     if (darkModeToggle) {
         darkModeToggle.addEventListener('change', () => {
             document.body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+            localStorage.setItem(
+                STORAGE_KEYS.theme,
+                document.body.classList.contains('dark-mode') ? 'dark' : 'light'
+            );
         });
+    }
+
+    if (soundToggle) {
+        soundToggle.addEventListener('change', () => {
+            isSoundOn = soundToggle.checked;
+            localStorage.setItem(STORAGE_KEYS.sound, isSoundOn ? 'on' : 'off');
+        });
+    }
+
+    if (vibrationToggle) {
+        vibrationToggle.addEventListener('change', () => {
+            isVibrationOn = vibrationToggle.checked;
+            localStorage.setItem(STORAGE_KEYS.vibration, isVibrationOn ? 'on' : 'off');
+        });
+    }
+
+    const savedFreeSuper = parseInt(localStorage.getItem(STORAGE_KEYS.freeSuperCombos), 10);
+    if (Number.isFinite(savedFreeSuper) && savedFreeSuper > 0) {
+        freeSuperCombos = savedFreeSuper;
     }
 
     if (modalBtn) {
@@ -203,6 +472,68 @@ function initGame() {
 
     const quitBtn = document.getElementById('quit-btn');
     if (quitBtn) quitBtn.addEventListener('click', quitGame);
+
+    if (promoCodeBtn && promoModalOverlay && promoCodeInput && promoSubmitBtn) {
+        promoCodeBtn.addEventListener('click', () => {
+            promoMessageEl.innerText = '';
+            promoCodeInput.value = '';
+            promoModalOverlay.classList.remove('hidden');
+            promoModalOverlay.style.display = 'flex';
+            promoCodeInput.focus();
+        });
+        promoSubmitBtn.addEventListener('click', () => {
+            redeemPromoCode();
+        });
+        promoCodeInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                redeemPromoCode();
+            }
+        });
+    }
+
+    if (levelSelectCloseBtn) {
+        levelSelectCloseBtn.addEventListener('click', () => {
+            if (levelSelectOverlay) levelSelectOverlay.classList.add('hidden');
+        });
+    }
+
+    if (tutorialOkBtn) {
+        tutorialOkBtn.addEventListener('click', () => {
+            if (tutorialOverlay) {
+                tutorialOverlay.classList.add('hidden');
+                tutorialOverlay.style.display = 'none';
+            }
+            openLevelSelect();
+        });
+    }
+}
+
+function openLevelSelect() {
+    if (!levelGridEl || !levelSelectOverlay) return;
+    levelGridEl.innerHTML = '';
+    const maxUnlockedRaw = parseInt(localStorage.getItem(STORAGE_KEYS.maxUnlockedLevel), 10);
+    const maxUnlocked = Number.isFinite(maxUnlockedRaw) ? maxUnlockedRaw : 1;
+    const rawStars = localStorage.getItem(STORAGE_KEYS.bestStars);
+    const starsMap = rawStars ? JSON.parse(rawStars) : {};
+    LEVELS.forEach(cfg => {
+        const btn = document.createElement('button');
+        btn.className = 'level-button';
+        const stars = starsMap[String(cfg.id)] || 0;
+        btn.innerText = stars > 0 ? `${cfg.id} (${stars}⭐)` : String(cfg.id);
+        btn.title = getLevelGroupName(cfg.id);
+        if (cfg.id > maxUnlocked) {
+            btn.disabled = true;
+            btn.classList.add('locked');
+        } else {
+            btn.addEventListener('click', () => {
+                levelSelectOverlay.classList.add('hidden');
+                startLevel(cfg.id);
+            });
+        }
+        if (cfg.id === level) btn.classList.add('current');
+        levelGridEl.appendChild(btn);
+    });
+    levelSelectOverlay.classList.remove('hidden');
 }
 
 function openDrawer() {
@@ -257,6 +588,7 @@ function startLevel(lvl) {
     // Loop back to level 1 if max reached (or handle end game)
     const levelConfig = LEVELS.find(l => l.id === lvl) || LEVELS[0]; 
     level = levelConfig.id;
+    localStorage.setItem(STORAGE_KEYS.currentLevel, String(level));
     score = 0;
     moves = levelConfig.moves;
     isProcessing = false; // Reset processing flag
@@ -332,6 +664,7 @@ async function showHint() {
             }
         }
     }
+    handleNoMovesAvailable();
 }
 
 async function checkSwapForMatch(r1, c1, r2, c2) {
@@ -339,7 +672,7 @@ async function checkSwapForMatch(r1, c1, r2, c2) {
     const t1 = grid[r1][c1];
     const t2 = grid[r2][c2];
     
-    if (t1.type.id === 'crate' || t2.type.id === 'crate') return false;
+    if (isObstacleId(t1.type.id) || isObstacleId(t2.type.id)) return false;
 
     // Swap types temporarily
     const temp = t1.type;
@@ -404,6 +737,7 @@ function updateTimerUI() {
 function handleGameOver() {
     isProcessing = true; // Block inputs
     setTimeout(() => {
+        vibrate([200, 100, 200]);
         document.getElementById('modal-title').innerText = "YAKO !";
         document.getElementById('modal-message').innerHTML = `<b>${playerName}</b>, le temps est écoulé !<br>Score : ${score}`;
         document.getElementById('modal-btn').innerText = "Recommencer";
@@ -413,6 +747,58 @@ function handleGameOver() {
         };
         modalOverlay.classList.remove('hidden');
     }, 500);
+}
+
+function handleNoMovesAvailable() {
+    if (isProcessing || isPaused) return;
+    vibrate([100, 80, 100]);
+    const msg = document.createElement('div');
+    msg.id = 'nomove-msg';
+    msg.innerHTML = `${playerName}, y'a plus de coups là...<br><strong>On mélange le Dabali !</strong>`;
+    msg.style.position = 'fixed';
+    msg.style.top = '50%';
+    msg.style.left = '50%';
+    msg.style.transform = 'translate(-50%, -50%)';
+    msg.style.background = 'rgba(0,0,0,0.8)';
+    msg.style.color = 'white';
+    msg.style.padding = '15px 20px';
+    msg.style.borderRadius = '15px';
+    msg.style.zIndex = '2200';
+    msg.style.textAlign = 'center';
+    document.body.appendChild(msg);
+    reshuffleGrid();
+    setTimeout(() => {
+        if (msg.parentNode) msg.parentNode.removeChild(msg);
+        resetHintTimer();
+    }, 1500);
+}
+
+function reshuffleGrid() {
+    const types = [];
+    for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+            const tile = grid[r][c];
+            if (!isObstacleId(tile.type.id)) {
+                types.push(tile.type);
+            }
+        }
+    }
+    for (let i = types.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = types[i];
+        types[i] = types[j];
+        types[j] = tmp;
+    }
+    let index = 0;
+    for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+            const tile = grid[r][c];
+            if (!isObstacleId(tile.type.id)) {
+                tile.type = types[index++];
+                renderTileContent(tile.el, tile.type);
+            }
+        }
+    }
 }
 
 function createGrid(obstacleCount = 0) {
@@ -441,9 +827,10 @@ function createGrid(obstacleCount = 0) {
     while (placed < obstacleCount) {
         const r = Math.floor(Math.random() * GRID_SIZE);
         const c = Math.floor(Math.random() * GRID_SIZE);
-        if (grid[r][c].type.id !== 'crate') {
-            grid[r][c].type = OBSTACLES.CRATE;
-            grid[r][c].el.innerText = OBSTACLES.CRATE.emoji;
+        if (!isObstacleId(grid[r][c].type.id)) {
+            const obstacleType = getRandomObstacleForLevel(level);
+            grid[r][c].type = obstacleType;
+            renderTileContent(grid[r][c].el, grid[r][c].type);
             grid[r][c].el.classList.add('obstacle');
             placed++;
         }
@@ -527,10 +914,13 @@ function handleInputStart(e) {
     if (e.type === 'touchstart') {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
-        activeTile = getTileFromEl(e.target);
+        const tile = getTileFromEl(e.target);
+        if (!tile || isImmovable(tile)) return;
+        activeTile = tile;
     } else {
         // Mouse click selection
         const tile = getTileFromEl(e.target);
+        if (!tile || isImmovable(tile)) return;
         if (selectedTile) {
             // Second click -> Try swap
             attemptSwap(selectedTile, tile);
@@ -585,6 +975,14 @@ function getTileFromEl(el) {
 
 async function attemptSwap(tile1, tile2) {
     if (tile1 === tile2) return;
+    if (!tile1 || !tile2) return;
+    if (isImmovable(tile1) || isImmovable(tile2)) {
+        if (selectedTile) {
+            selectedTile.el.classList.remove('selected');
+            selectedTile = null;
+        }
+        return;
+    }
     
     // Check adjacency
     const isAdjacent = Math.abs(tile1.r - tile2.r) + Math.abs(tile1.c - tile2.c) === 1;
@@ -662,6 +1060,7 @@ function triggerSuperCombo() {
     
     timeRemaining += 60;
     updateTimerUI();
+    vibrate([100, 50, 100, 50, 200]);
     
     // Force restart timer if not paused to ensure it continues
     if (!isPaused) {
@@ -677,12 +1076,58 @@ function findMatches() {
     let matches = new Set();
     let superComboTriggered = false;
 
-    const checkRun = (run) => {
+    const applyExplosionAroundRun = (run) => {
+        run.forEach(t => {
+            const positions = [
+                { r: t.r - 1, c: t.c },
+                { r: t.r + 1, c: t.c },
+                { r: t.r, c: t.c - 1 },
+                { r: t.r, c: t.c + 1 }
+            ];
+            positions.forEach(pos => {
+                if (pos.r >= 0 && pos.r < GRID_SIZE && pos.c >= 0 && pos.c < GRID_SIZE) {
+                    matches.add(grid[pos.r][pos.c]);
+                }
+            });
+        });
+    };
+
+    const applyLineClear = (run, orientation, cross = false) => {
+        if (run.length === 0) return;
+        const center = run[Math.floor(run.length / 2)];
+        if (orientation === 'row' || cross) {
+            for (let c = 0; c < GRID_SIZE; c++) {
+                matches.add(grid[center.r][c]);
+            }
+        }
+        if (orientation === 'col' || cross) {
+            for (let r = 0; r < GRID_SIZE; r++) {
+                matches.add(grid[r][center.c]);
+            }
+        }
+    };
+
+    const checkRun = (run, orientation) => {
         if (run.length >= 3) {
             run.forEach(t => matches.add(t));
+            if (run.length === 3 && freeSuperCombos > 0 && !superComboTriggered) {
+                freeSuperCombos -= 1;
+                localStorage.setItem(STORAGE_KEYS.freeSuperCombos, String(freeSuperCombos));
+                triggerSuperCombo();
+                superComboTriggered = true;
+                applyLineClear(run, orientation, false);
+                return;
+            }
             if (run.length >= 4 && !superComboTriggered) {
                 triggerSuperCombo();
                 superComboTriggered = true; 
+            }
+            if (run.length === 4) {
+                applyLineClear(run, orientation, false);
+            }
+            if (run.length >= 5) {
+                applyExplosionAroundRun(run);
+                applyLineClear(run, orientation, true);
             }
         }
     };
@@ -693,16 +1138,16 @@ function findMatches() {
         let run = [];
         for (let c = 0; c < GRID_SIZE; c++) {
             const t = grid[r][c];
-            if (t.type.id === 'crate') {
-                checkRun(run); run = []; continue;
+            if (isObstacleId(t.type.id)) {
+                checkRun(run, 'row'); run = []; continue;
             }
             if (run.length === 0 || run[run.length-1].type.id === t.type.id) {
                 run.push(t);
             } else {
-                checkRun(run); run = [t];
+                checkRun(run, 'row'); run = [t];
             }
         }
-        checkRun(run);
+        checkRun(run, 'row');
     }
 
     // Vertical
@@ -710,16 +1155,16 @@ function findMatches() {
         let run = [];
         for (let r = 0; r < GRID_SIZE; r++) {
             const t = grid[r][c];
-            if (t.type.id === 'crate') {
-                checkRun(run); run = []; continue;
+            if (isObstacleId(t.type.id)) {
+                checkRun(run, 'col'); run = []; continue;
             }
             if (run.length === 0 || run[run.length-1].type.id === t.type.id) {
                 run.push(t);
             } else {
-                checkRun(run); run = [t];
+                checkRun(run, 'col'); run = [t];
             }
         }
-        checkRun(run);
+        checkRun(run, 'col');
     }
     
     // 2. Special Recipe Matches (Heterogeneous)
@@ -756,9 +1201,9 @@ function findMatches() {
         neighbors.forEach(n => {
             if (n.r >= 0 && n.r < GRID_SIZE && n.c >= 0 && n.c < GRID_SIZE) {
                 const neighborTile = grid[n.r][n.c];
-                if (neighborTile.type.id === 'crate' && !matches.has(neighborTile)) {
+                if (isObstacleId(neighborTile.type.id) && !matches.has(neighborTile)) {
+                    if (neighborTile.type.id === 'rock') return;
                     matches.add(neighborTile);
-                    // Crates give points? Maybe small points.
                     score += 20;
                 }
             }
@@ -803,10 +1248,28 @@ function causesMatch(r, c, typeId, currentRow) {
     return false;
 }
 
+function isObstacleId(id) {
+    return id === 'crate' || id === 'frozen' || id === 'rock';
+}
+
+function isImmovable(tile) {
+    if (!tile || !tile.type) return false;
+    return isObstacleId(tile.type.id);
+}
+
+function getRandomObstacleForLevel(levelId) {
+    const pool = [OBSTACLES.CRATE];
+    if (levelId >= 6) pool.push(OBSTACLES.FROZEN);
+    if (levelId >= 11) pool.push(OBSTACLES.ROCK);
+    const index = Math.floor(Math.random() * pool.length);
+    return pool[index];
+}
+
 function showBonDabali() {
     comboMsg.innerHTML = `<div style="font-size:0.8em">${playerName} !</div>BON DABALI !`;
     comboMsg.classList.remove('hidden');
     soundManager.playBonDabali();
+    vibrate([80, 40, 80]);
     setTimeout(() => comboMsg.classList.add('hidden'), 2000);
     score += 500; // Bonus
 }
@@ -825,6 +1288,8 @@ async function processMatches(matches) {
 
     let goalCompletedThisTurn = false;
     let allGoalsCompleted = false;
+
+    const levelConfig = LEVELS.find(l => l.id === level) || LEVELS[0];
 
     // Apply logic per type
     for (let id in typeCounts) {
@@ -944,10 +1409,26 @@ function checkGameEnd() {
         setTimeout(() => {
             showBonDabali(); // Extra celebration
             setTimeout(() => {
+                vibrate([150, 80, 150, 80, 300]);
+                const levelConfig = LEVELS.find(l => l.id === level) || LEVELS[0];
+                const stars = computeStars(score, levelConfig);
+                saveBestScoreAndStars(level, score, stars);
+                updateModalStars(stars);
+                const maxUnlocked = parseInt(localStorage.getItem(STORAGE_KEYS.maxUnlockedLevel), 10);
+                const previousMax = Number.isFinite(maxUnlocked) ? maxUnlocked : 1;
+                const newMax = Math.max(previousMax, level + 1);
+                localStorage.setItem(STORAGE_KEYS.maxUnlockedLevel, String(newMax));
                 document.getElementById('modal-title').innerText = "Niveau Terminé !";
                 document.getElementById('modal-message').innerText = `Bravo ${playerName} ! Score: ${score}`;
                 document.getElementById('modal-btn').innerText = "Niveau Suivant";
-                modalBtn.onclick = nextLevel; // Ensure correct handler
+                modalBtn.onclick = () => {
+                    modalOverlay.classList.add('hidden');
+                    if (shouldShowAdAfterLevel(level, previousMax, newMax)) {
+                        showAdForLevel(level);
+                    } else {
+                        nextLevel();
+                    }
+                };
                 modalOverlay.classList.remove('hidden');
             }, 2000);
         }, 500);
@@ -978,6 +1459,10 @@ function updateUI() {
     scoreEl.innerText = score;
     movesEl.innerText = moves;
     document.getElementById('level-display').innerText = level;
+    if (levelGroupEl) {
+        levelGroupEl.innerText = getLevelGroupName(level);
+    }
+    updateFreeSuperDisplay();
     
     // Goals Update
     for (let id in currentGoals) {
@@ -994,5 +1479,56 @@ function updateUI() {
     }
 }
 
+function computeStars(currentScore, levelConfig) {
+    const base = levelConfig.moves || 1;
+    const oneStar = base * 10;
+    const twoStars = base * 20;
+    const threeStars = base * 30;
+    if (currentScore >= threeStars) return 3;
+    if (currentScore >= twoStars) return 2;
+    if (currentScore >= oneStar) return 1;
+    return 0;
+}
+
+function saveBestScoreAndStars(levelId, currentScore, stars) {
+    const rawScores = localStorage.getItem(STORAGE_KEYS.bestScores);
+    const rawStars = localStorage.getItem(STORAGE_KEYS.bestStars);
+    const scores = rawScores ? JSON.parse(rawScores) : {};
+    const starsMap = rawStars ? JSON.parse(rawStars) : {};
+    const key = String(levelId);
+    const previousScore = scores[key] || 0;
+    const previousStars = starsMap[key] || 0;
+    if (currentScore > previousScore) {
+        scores[key] = currentScore;
+    }
+    if (stars > previousStars) {
+        starsMap[key] = stars;
+    }
+    localStorage.setItem(STORAGE_KEYS.bestScores, JSON.stringify(scores));
+    localStorage.setItem(STORAGE_KEYS.bestStars, JSON.stringify(starsMap));
+}
+
+function updateModalStars(stars) {
+    const container = document.getElementById('modal-stars');
+    if (!container) return;
+    const icons = container.querySelectorAll('i');
+    icons.forEach((icon, index) => {
+        if (index < stars) {
+            icon.style.opacity = '1';
+        } else {
+            icon.style.opacity = '0.2';
+        }
+    });
+}
+
 // Start
-window.onload = initGame;
+class DabaliGame {
+    init() {
+        initGame();
+    }
+}
+
+window.onload = () => {
+    const game = new DabaliGame();
+    game.init();
+};

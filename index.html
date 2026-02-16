@@ -35,14 +35,22 @@
             <div class="drawer-item">
                 <span>Son</span>
                 <label class="switch">
-                    <input type="checkbox" checked>
+                    <input type="checkbox" id="sound-toggle" checked>
                     <span class="slider round"></span>
                 </label>
+            </div>
+            <div class="drawer-item" id="open-level-map" style="cursor:pointer;">
+                <span>Carte des niveaux</span>
+                <i class="fas fa-map"></i>
+            </div>
+            <div class="drawer-item" id="promo-code-btn" style="cursor:pointer;">
+                <span>Code partenaire</span>
+                <i class="fas fa-gift"></i>
             </div>
             <div class="drawer-item">
                 <span>Vibrations</span>
                 <label class="switch">
-                    <input type="checkbox" checked>
+                    <input type="checkbox" id="vibration-toggle" checked>
                     <span class="slider round"></span>
                 </label>
             </div>
@@ -72,7 +80,10 @@
         <div id="header">
             <div class="header-top">
                 <button id="menu-btn"><i class="fas fa-bars"></i></button>
-                <div class="level-badge">NIVEAU <span id="level-display">1</span></div>
+                <div class="level-badge">
+                    NIVEAU <span id="level-display">1</span>
+                    <div id="level-group-display"></div>
+                </div>
                 <div class="timer-badge">⏳ <span id="timer-display">01:30</span></div>
                 <button id="pause-btn" class="header-btn"><i class="fas fa-pause"></i></button>
             </div>
@@ -84,6 +95,7 @@
                 <div class="stat-box">
                     <span class="stat-icon">⭐</span>
                     <span id="score-display">0</span>
+                    <span id="free-super-badge" class="hidden">0</span>
                 </div>
             </div>
         </div>
@@ -98,16 +110,59 @@
             </div>
         </div>
 
+        <!-- Tutorial Overlay -->
+        <div id="tutorial-overlay" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h2 class="modal-title">Comment jouer</h2>
+                <p class="modal-message">
+                    Aligne 3 ingrédients ou plus pour préparer ton Dabali.<br>
+                    Glisse les tuiles ou tape deux cases pour les échanger !
+                </p>
+                <button id="tutorial-ok-btn" class="modal-btn">C'est bon, chef !</button>
+            </div>
+        </div>
+
         <div id="game-board">
             <div id="grid"></div>
         </div>
 
         <!-- Combo Message -->
         <div id="combo-message" class="hidden">BON DABALI !</div>
+        
+        <!-- Promo Code Modal -->
+        <div id="promo-modal-overlay" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h2 class="modal-title">Code partenaire</h2>
+                <p class="modal-message">Entre ton code pour débloquer un bonus :</p>
+                <input type="text" id="promo-code-input" placeholder="CODE" maxlength="20" autocomplete="off">
+                <button id="promo-submit-btn" class="modal-btn">Valider</button>
+                <p id="promo-message"></p>
+            </div>
+        </div>
+
+        <!-- Ad Modal -->
+        <div id="ad-modal-overlay" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h2 class="modal-title">Pause pub Dabali</h2>
+                <p id="ad-partner-name" class="modal-message"></p>
+                <p id="ad-code-hint" class="modal-message"></p>
+                <p class="modal-message">La pub se termine dans <span id="ad-countdown">10</span>s</p>
+                <button id="ad-continue-btn" class="modal-btn" disabled>Continuer</button>
+            </div>
+        </div>
 
         <!-- Footer: Objectifs visuels -->
         <div id="footer-goals">
             <!-- Goals generated dynamically -->
+        </div>
+    </div>
+
+    <!-- Level Select -->
+    <div id="level-select-overlay" class="modal-overlay hidden">
+        <div id="level-select-content">
+            <h2 class="modal-title">Choisis ton niveau</h2>
+            <div id="level-grid"></div>
+            <button id="level-select-close" class="modal-btn">Fermer</button>
         </div>
     </div>
 
