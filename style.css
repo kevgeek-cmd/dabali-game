@@ -570,13 +570,26 @@ input:checked + .slider:before { transform: translateX(24px); }
 
 #start-btn {
     margin-top: 20px;
-    padding: 15px 40px;
-    background: #D2691E; color: white;
-    border: none; border-radius: 30px;
-    font-size: 1.5rem; font-weight: bold;
+    padding: 18px 48px;
+    background: #E67E22;
+    color: #ffffff;
+    border: 3px solid #8B4513;
+    border-radius: 999px;
+    font-size: clamp(1.3rem, 4vw, 2rem);
+    font-weight: 900;
     cursor: pointer;
-    box-shadow: 0 5px 0 #8B4513;
-    animation: popOut 0.5s reverse forwards;
+    box-shadow: 0 8px 0 #8B4513, 0 0 18px rgba(0,0,0,0.4);
+    text-transform: uppercase;
+}
+
+#start-btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 10px 0 #8B4513, 0 0 24px rgba(0,0,0,0.5);
+}
+
+#start-btn:active {
+    transform: translateY(3px) scale(0.98);
+    box-shadow: 0 4px 0 #8B4513, 0 0 10px rgba(0,0,0,0.3);
 }
 
 /* DARK MODE */
@@ -605,6 +618,7 @@ body.dark-mode .goal-item.completed { background: #2E8B57; border-color: #2E8B57
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 2500;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
