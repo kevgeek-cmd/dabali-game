@@ -686,7 +686,14 @@ body.dark-mode .goal-item.completed { background: #2E8B57; border-color: #2E8B57
 #level-select-content {
     padding: 20px;
     width: 90%;
-    max-width: 340px;
+    max-width: 360px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: #fffaf0;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    border: 5px solid #8B4513;
+    box-sizing: border-box;
 }
 
 #level-grid {
@@ -694,6 +701,12 @@ body.dark-mode .goal-item.completed { background: #2E8B57; border-color: #2E8B57
     grid-template-columns: repeat(5, 1fr);
     gap: 8px;
     margin: 15px 0 10px 0;
+}
+
+@media (max-width: 400px) {
+    #level-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 .level-button {
