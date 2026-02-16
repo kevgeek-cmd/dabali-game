@@ -215,6 +215,20 @@ body {
     padding: 10px;
 }
 
+/* LANDSCAPE ADAPTATION (mobile, tablette, PC) */
+@media (orientation: landscape) {
+    #game-container {
+        max-width: 900px;
+    }
+
+    #game-board {
+        width: auto;
+        max-width: 90vw;
+        height: 70vh;
+        max-height: 70vh;
+    }
+}
+
 #grid {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
