@@ -888,6 +888,15 @@ function createRandomTile(r, c) {
 }
 
 function renderTileContent(el, type) {
+    el.classList.remove(
+        'tile-attieke',
+        'tile-poisson',
+        'tile-piment',
+        'tile-oignon',
+        'tile-tomate',
+        'tile-maggi',
+        'tile-huile'
+    );
     if (type.image) {
         el.innerHTML = `<img src="${type.image}" alt="${type.name}" style="width:80%; height:80%; object-fit:contain; pointer-events:none;">`;
         el.style.fontSize = '';
@@ -895,6 +904,9 @@ function renderTileContent(el, type) {
         el.innerText = type.emoji;
         el.innerHTML = type.emoji; // Use innerHTML to be safe
         el.style.fontSize = '';
+    }
+    if (type.id) {
+        el.classList.add(`tile-${type.id}`);
     }
 }
 
