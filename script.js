@@ -13,7 +13,8 @@ const INGREDIENTS = [
 const OBSTACLES = {
     CRATE: { name: 'Caisse', emoji: '📦', id: 'crate', destructible: true, immovable: true },
     FROZEN: { name: 'Bloc glacé', emoji: '🧊', id: 'frozen', destructible: true, immovable: true },
-    ROCK: { name: 'Roche', emoji: '🪨', id: 'rock', destructible: false, immovable: true }
+    ROCK: { name: 'Roche', emoji: '🪨', id: 'rock', destructible: false, immovable: true },
+    FIRE: { name: 'Flamme', emoji: '🔥', id: 'fire', destructible: true, immovable: true }
 };
 
 const STORAGE_KEYS = {
@@ -148,8 +149,8 @@ const RECIPES = [
 ];
 
 const PROMO_CODES = {
-    'GARBA2025': { type: 'unlock_level', level: 30, message: 'Tu as débloqué les niveaux jusqu\'au 30.' },
-    'DABALI50': { type: 'unlock_level', level: 50, message: 'Tu as débloqué les niveaux jusqu\'au 50.' },
+    'GARBA2025': { type: 'unlock_level', level: null, message: 'Tu as débloqué un niveau bonus !' },
+    'DABALI50': { type: 'unlock_level', level: null, message: 'Tu as débloqué un niveau bonus !' },
     'SUPERDABALI': { type: 'free_super', count: 3, message: 'Tu as gagné 3 super combos.' }
 };
 
@@ -160,6 +161,21 @@ function getLevelGroupName(levelId) {
     if (levelId <= 60) return "Dabali de Treichville";
     if (levelId <= 80) return "Dabali du marché";
     return "Dabali de Côte d'Ivoire";
+}
+
+function applyThemeForLevel(levelId) {
+    document.body.classList.remove(
+        'theme-garba',
+        'theme-yopougon',
+        'theme-cocody',
+        'theme-treichville',
+        'theme-marche'
+    );
+    if (levelId <= 10) document.body.classList.add('theme-garba');
+    else if (levelId <= 20) document.body.classList.add('theme-yopougon');
+    else if (levelId <= 40) document.body.classList.add('theme-cocody');
+    else if (levelId <= 60) document.body.classList.add('theme-treichville');
+    else document.body.classList.add('theme-marche');
 }
 
 // STATE
@@ -177,6 +193,9 @@ let isVibrationOn = true;
 let freeSuperCombos = 0;
 
 let timerInterval = null;
+let avatarEl = null;
+let avatarState = 'neutral';
+let avatarIdleTimeout = null;
 let timeRemaining = 90; // 1m30s
 let isPaused = false;
 let hintTimeout = null;
@@ -265,10 +284,8 @@ function redeemPromoCode() {
     if (config.type === 'unlock_level') {
         const current = parseInt(localStorage.getItem(STORAGE_KEYS.maxUnlockedLevel), 10);
         const maxUnlocked = Number.isFinite(current) ? current : 1;
-        const target = config.level;
-        if (target > maxUnlocked) {
-            localStorage.setItem(STORAGE_KEYS.maxUnlockedLevel, String(target));
-        }
+        const target = maxUnlocked + 2;
+        localStorage.setItem(STORAGE_KEYS.maxUnlockedLevel, String(target));
     }
     if (config.type === 'free_super') {
         freeSuperCombos += config.count;
@@ -278,6 +295,42 @@ function redeemPromoCode() {
     soundManager.playPromoSuccess();
     vibrate([80, 40, 80, 40, 120]);
     promoMessageEl.innerText = config.message;
+}
+
+function setAvatarMood(state) {
+    if (!avatarEl) return;
+    avatarState = state;
+    avatarEl.className = '';
+    avatarEl.classList.add('avatar-face');
+    if (state === 'happy') avatarEl.textContent = '😄';
+    else if (state === 'angry') avatarEl.textContent = '😠';
+    else if (state === 'bored') avatarEl.textContent = '😒';
+    else avatarEl.textContent = '😋';
+    if (state === 'happy') avatarEl.classList.add('avatar-happy');
+    if (state === 'angry') avatarEl.classList.add('avatar-angry');
+    if (state === 'bored') avatarEl.classList.add('avatar-bored');
+    if (avatarIdleTimeout) clearTimeout(avatarIdleTimeout);
+    avatarIdleTimeout = setTimeout(() => {
+        setAvatarMood('neutral');
+    }, 4000);
+}
+
+function spawnComboStars() {
+    const effectContainer = document.getElementById('combo-effect');
+    if (!effectContainer) return;
+    effectContainer.innerHTML = '';
+    effectContainer.classList.remove('hidden');
+    for (let i = 0; i < 18; i++) {
+        const star = document.createElement('div');
+        star.className = 'combo-star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.bottom = Math.random() * 40 + '%';
+        effectContainer.appendChild(star);
+    }
+    setTimeout(() => {
+        effectContainer.classList.add('hidden');
+        effectContainer.innerHTML = '';
+    }, 800);
 }
 
 function shouldShowAdAfterLevel(completedLevel, previousMax, newMax) {
@@ -306,12 +359,26 @@ function showAdForLevel(completedLevel) {
     vibrate([60, 40, 60]);
     adModalOverlay.classList.remove('hidden');
     adModalOverlay.classList.add('active');
+    let lastCode = ad.code;
+    if (adCopyBtn) {
+        adCopyBtn.onclick = () => {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(lastCode);
+            }
+        };
+    }
+
     const interval = setInterval(() => {
         remaining -= 1;
         adCountdownEl.innerText = String(remaining);
         if (remaining <= 0) {
             clearInterval(interval);
             adContinueBtn.disabled = false;
+            setTimeout(() => {
+                if (!adModalOverlay.classList.contains('hidden')) {
+                    adContinueBtn.onclick();
+                }
+            }, 3000);
         }
     }, 1000);
     adContinueBtn.onclick = () => {
@@ -349,6 +416,7 @@ const adPartnerNameEl = document.getElementById('ad-partner-name');
 const adCodeHintEl = document.getElementById('ad-code-hint');
 const adCountdownEl = document.getElementById('ad-countdown');
 const adContinueBtn = document.getElementById('ad-continue-btn');
+const adCopyBtn = document.getElementById('ad-copy-btn');
 const levelSelectOverlay = document.getElementById('level-select-overlay');
 const levelGridEl = document.getElementById('level-grid');
 const levelSelectCloseBtn = document.getElementById('level-select-close');
@@ -533,6 +601,14 @@ function initGame() {
         });
     }
 
+    const avatarBody = document.getElementById('avatar-body');
+    if (avatarBody) {
+        avatarEl = document.createElement('div');
+        avatarEl.className = 'avatar-face';
+        avatarBody.appendChild(avatarEl);
+        setAvatarMood('neutral');
+    }
+
     if (tutorialOkBtn) {
         tutorialOkBtn.addEventListener('click', () => {
             if (tutorialOverlay) {
@@ -627,6 +703,7 @@ function startLevel(lvl) {
     // Loop back to level 1 if max reached (or handle end game)
     const levelConfig = LEVELS.find(l => l.id === lvl) || LEVELS[0]; 
     level = levelConfig.id;
+    applyThemeForLevel(level);
     localStorage.setItem(STORAGE_KEYS.currentLevel, String(level));
     score = 0;
     moves = levelConfig.moves;
@@ -637,6 +714,7 @@ function startLevel(lvl) {
     clearInterval(timerInterval);
     timeRemaining = 90; // 90 seconds
     startTimer();
+    setAvatarMood('neutral');
 
     // Init Goals
     currentGoals = { ...levelConfig.goals };
@@ -673,6 +751,14 @@ function resetHintTimer() {
     
     if (moves > 0 && !isPaused && !isProcessing) {
         hintTimeout = setTimeout(showHint, 10000);
+    }
+
+    if (moves > 0 && !isPaused && !isProcessing) {
+        setTimeout(() => {
+            if (!isPaused && !isProcessing) {
+                setAvatarMood('bored');
+            }
+        }, 8000);
     }
 }
 
@@ -775,6 +861,7 @@ function updateTimerUI() {
 
 function handleGameOver() {
     isProcessing = true;
+    setAvatarMood('angry');
     setTimeout(() => {
         vibrate([200, 120, 200, 120, 260]);
         document.getElementById('modal-title').innerText = "YAKO !";
@@ -1105,12 +1192,11 @@ function swapTilesVisual(t1, t2) {
 }
 
 function triggerSuperCombo() {
-    const msg = document.createElement('div');
-    msg.id = 'super-combo-msg';
-    msg.innerHTML = "Y'a jahin moument<br>tu es Fort(e) même tchié !<br><span>+1 min</span>";
-    document.body.appendChild(msg);
+    const bar = document.createElement('div');
+    bar.id = 'super-combo-msg';
+    document.body.appendChild(bar);
     
-    timeRemaining += 60;
+    timeRemaining += 30;
     updateTimerUI();
     vibrate([100, 50, 100, 50, 200]);
     
@@ -1120,7 +1206,7 @@ function triggerSuperCombo() {
     }
     
     setTimeout(() => {
-        if (msg.parentNode) msg.parentNode.removeChild(msg);
+        if (bar.parentNode) bar.parentNode.removeChild(bar);
     }, 3000);
 }
 
@@ -1311,6 +1397,7 @@ function isImmovable(tile) {
 
 function getRandomObstacleForLevel(levelId) {
     const pool = [OBSTACLES.CRATE];
+    if (levelId >= 3) pool.push(OBSTACLES.FIRE);
     if (levelId >= 6) pool.push(OBSTACLES.FROZEN);
     if (levelId >= 11) pool.push(OBSTACLES.ROCK);
     const index = Math.floor(Math.random() * pool.length);
@@ -1318,12 +1405,14 @@ function getRandomObstacleForLevel(levelId) {
 }
 
 function showBonDabali() {
-    comboMsg.innerHTML = `<div style="font-size:0.8em">${playerName} !</div>BON DABALI !`;
+    comboMsg.innerHTML = '';
     comboMsg.classList.remove('hidden');
     soundManager.playBonDabali();
     vibrate([80, 40, 80]);
-    setTimeout(() => comboMsg.classList.add('hidden'), 2000);
-    score += 500; // Bonus
+    spawnComboStars();
+    setAvatarMood('happy');
+    setTimeout(() => comboMsg.classList.add('hidden'), 400);
+    score += 300;
 }
 
 async function processMatches(matches) {
@@ -1337,6 +1426,7 @@ async function processMatches(matches) {
     });
 
     soundManager.playMatch();
+    setAvatarMood('angry');
 
     let goalCompletedThisTurn = false;
     let allGoalsCompleted = false;
@@ -1378,6 +1468,9 @@ async function processMatches(matches) {
     }
 
     updateUI();
+    if (matches.length >= 7) {
+        setAvatarMood('happy');
+    }
     
     await new Promise(r => setTimeout(r, 300));
     

@@ -23,10 +23,6 @@
 }
 
 body {
-    touch-action: pan-y;
-}
-
-body {
     font-family: var(--font-family);
     background: radial-gradient(circle, #FFE4B5 0%, #DEB887 100%);
     height: 100vh;
@@ -186,13 +182,33 @@ body {
     max-width: 95vw; /* Empêche le débordement horizontal */
     aspect-ratio: 1; /* Garde le ratio carré */
     margin: 10px auto;
-    background: #D2B48C url('assets/splash.jpg') center/cover no-repeat; /* Plateau Dabali */
+    background: #D2B48C url('assets/splash.jpg') center/cover no-repeat;
     border: 8px solid #8B4513;
     border-radius: 15px;
     box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
     overflow: hidden; /* Empêche tout ce qui dépasse d'être vu, mais on va gérer la taille interne */
     box-sizing: border-box; /* Inclut le padding dans la taille */
     padding: 5px; /* Marge de sécurité interne */
+}
+
+body.theme-garba #game-board {
+    background: #D2B48C url('assets/splash.jpg') center/cover no-repeat;
+}
+
+body.theme-yopougon #game-board {
+    background: radial-gradient(circle, #ffe4b5 0%, #cd853f 60%, #8b4513 100%);
+}
+
+body.theme-cocody #game-board {
+    background: radial-gradient(circle, #fffaf0 0%, #b0c4de 60%, #4169e1 100%);
+}
+
+body.theme-treichville #game-board {
+    background: radial-gradient(circle, #fff5e6 0%, #ff8c00 60%, #8b0000 100%);
+}
+
+body.theme-marche #game-board {
+    background: radial-gradient(circle, #f0fff0 0%, #3cb371 60%, #2e8b57 100%);
 }
 
 #board-tip {
@@ -239,7 +255,6 @@ body {
     gap: 4px;
     width: 100%;
     height: 100%;
-    touch-action: none; /* bloque le scroll pendant les swipes sur la grille */
 }
 
 .tile {
@@ -360,32 +375,51 @@ body {
     filter: brightness(0.95);
 }
 
+.tile.fire {
+    background: radial-gradient(circle at 30% 20%, #fff3, #ff4500);
+    box-shadow:
+        0 0 10px rgba(255, 69, 0, 0.9),
+        0 0 20px rgba(255, 140, 0, 0.8);
+}
+
 /* COMBO MESSAGE */
 #combo-message {
     position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(255, 69, 0, 0.95);
+    top: 12%;
+    left: 50%;
+    transform: translateX(-50%);
     color: white;
-    font-size: 2rem;
-    font-weight: 900;
-    padding: 20px 30px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.4);
     z-index: 1000;
-    text-align: center;
-    white-space: normal; /* Allow wrap */
-    border: 5px solid #FFD700;
-    animation: dabaliAnim 2s forwards;
     pointer-events: none;
-    line-height: 1.2;
 }
 
-@keyframes dabaliAnim {
-    0% { transform: translate(-50%, -50%) scale(0.1) rotate(-10deg); opacity: 0; }
-    50% { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); opacity: 1; }
-    70% { transform: translate(-50%, -50%) scale(0.9) rotate(-5deg); }
-    100% { transform: translate(-50%, -50%) scale(2) rotate(0deg); opacity: 0; }
+#combo-effect {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 900;
+}
+
+.combo-star {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: radial-gradient(circle, #fff 0%, #ffd700 40%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+    opacity: 0;
+    animation: comboStar 700ms ease-out forwards;
+}
+
+@keyframes comboStar {
+    0% { transform: translateY(20px) scale(0.3); opacity: 0; }
+    40% { opacity: 1; }
+    100% { transform: translateY(-60px) scale(1); opacity: 0; }
 }
 
 @keyframes popOut {
@@ -416,37 +450,87 @@ body {
 
 #super-combo-msg {
     position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: linear-gradient(135deg, #FFD700, #FF8C00);
-    color: #8B4513;
-    font-size: 1.5rem;
-    font-weight: 900;
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ffd700, #ff8c00, #ff4500);
     z-index: 4000;
-    text-align: center;
-    border: 5px solid white;
-    animation: superComboAnim 3s forwards;
+    animation: superComboBar 800ms linear forwards;
     pointer-events: none;
-    width: 80%;
 }
 
-#super-combo-msg span {
-    font-size: 2.5rem;
-    display: block;
-    color: red;
-    text-shadow: 2px 2px white;
-    margin-top: 10px;
+@keyframes superComboBar {
+    0% { transform: scaleX(0); transform-origin: left; }
+    100% { transform: scaleX(1); transform-origin: left; opacity: 0; }
 }
 
-@keyframes superComboAnim {
-    0% { transform: translate(-50%, -50%) scale(0) rotate(-180deg); opacity: 0; }
-    20% { transform: translate(-50%, -50%) scale(1.2) rotate(10deg); opacity: 1; }
-    40% { transform: translate(-50%, -50%) scale(1) rotate(-10deg); }
-    80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
+#avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+#avatar-body {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ffe0b2, #c7925b);
+    border: 3px solid #5d4037;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+}
+
+#avatar-plate {
+    margin-top: 4px;
+    width: 90px;
+    height: 26px;
+    border-radius: 50% 50% 40% 40%;
+    background: linear-gradient(145deg, #ffe4b5, #f4a460);
+    border: 2px solid #8b4513;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.25);
+}
+
+.avatar-face {
+    position: absolute;
+}
+
+.avatar-neutral {
+    content: "😋";
+}
+
+.avatar-happy {
+    animation: avatarJump 600ms ease-out;
+}
+
+.avatar-angry {
+    animation: avatarShake 500ms ease-out;
+}
+
+.avatar-bored {
+    animation: avatarBlink 1500ms ease-in-out;
+}
+
+@keyframes avatarJump {
+    0% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes avatarShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+@keyframes avatarBlink {
+    0%, 80%, 100% { transform: scale(1); }
+    90% { transform: scale(0.95, 1.05); }
 }
 
 #pause-overlay {
