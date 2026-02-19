@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dabali-v6';
+const CACHE_NAME = 'dabali-v7';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -42,7 +42,7 @@ self.addEventListener('fetch', (event) => {
 
     if (request.mode === 'navigate') {
         event.respondWith(
-            fetch(request)
+            fetch(request.url, { cache: 'no-cache' })
                 .then((response) => {
                     const copy = response.clone();
                     caches.open(CACHE_NAME).then((cache) => cache.put('./index.html', copy));
@@ -57,7 +57,7 @@ self.addEventListener('fetch', (event) => {
 
     if (request.destination === 'script' || request.destination === 'style') {
         event.respondWith(
-            fetch(request)
+            fetch(request.url, { cache: 'no-cache' })
                 .then((response) => {
                     const copy = response.clone();
                     caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
