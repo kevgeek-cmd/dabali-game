@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dabali-v5';
+const CACHE_NAME = 'dabali-v6';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -38,14 +38,43 @@ self.addEventListener('activate', (event) => {
 
 // Fetch (servir le cache ou le réseau)
 self.addEventListener('fetch', (event) => {
+    const request = event.request;
+
+    if (request.mode === 'navigate') {
+        event.respondWith(
+            fetch(request)
+                .then((response) => {
+                    const copy = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put('./index.html', copy));
+                    return response;
+                })
+                .catch(() => {
+                    return caches.match('./index.html');
+                })
+        );
+        return;
+    }
+
+    if (request.destination === 'script' || request.destination === 'style') {
+        event.respondWith(
+            fetch(request)
+                .then((response) => {
+                    const copy = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+                    return response;
+                })
+                .catch(() => caches.match(request))
+        );
+        return;
+    }
+
     event.respondWith(
-        caches.match(event.request)
+        caches.match(request)
             .then((response) => {
-                // Cache hit - return response
                 if (response) {
                     return response;
                 }
-                return fetch(event.request);
+                return fetch(request);
             })
     );
 });
