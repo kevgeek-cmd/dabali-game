@@ -422,6 +422,24 @@ body.theme-marche #game-board {
     100% { transform: translateY(-60px) scale(1); opacity: 0; }
 }
 
+.combo-ring {
+    position: absolute;
+    width: 120%;
+    height: 120%;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.7);
+    left: -10%;
+    top: -10%;
+    opacity: 0;
+    animation: comboRing 500ms ease-out forwards;
+}
+
+@keyframes comboRing {
+    0% { transform: scale(0.4); opacity: 0; }
+    40% { opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+}
+
 @keyframes popOut {
     to { transform: scale(0); opacity: 0; }
 }
@@ -484,6 +502,49 @@ body.theme-marche #game-board {
     align-items: center;
     justify-content: center;
     font-size: 32px;
+}
+
+#avatar-limbs {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.avatar-arm,
+.avatar-leg {
+    position: absolute;
+    background: #5d4037;
+    border-radius: 999px;
+}
+
+.avatar-arm {
+    width: 26px;
+    height: 8px;
+    top: 32px;
+}
+
+.avatar-arm.left {
+    left: -10px;
+    transform-origin: right center;
+}
+
+.avatar-arm.right {
+    right: -10px;
+    transform-origin: left center;
+}
+
+.avatar-leg {
+    width: 10px;
+    height: 20px;
+    bottom: -6px;
+}
+
+.avatar-leg.left {
+    left: 18px;
+}
+
+.avatar-leg.right {
+    right: 18px;
 }
 
 #avatar-plate {

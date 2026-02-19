@@ -196,6 +196,7 @@ let timerInterval = null;
 let avatarEl = null;
 let avatarState = 'neutral';
 let avatarIdleTimeout = null;
+let avatarLimbsEl = null;
 let timeRemaining = 90; // 1m30s
 let isPaused = false;
 let hintTimeout = null;
@@ -307,12 +308,42 @@ function setAvatarMood(state) {
     else if (state === 'bored') avatarEl.textContent = '😒';
     else avatarEl.textContent = '😋';
     if (state === 'happy') avatarEl.classList.add('avatar-happy');
-    if (state === 'angry') avatarEl.classList.add('avatar-angry');
+    if (state === 'angry') {
+        avatarEl.classList.add('avatar-angry');
+        spawnAvatarThrow();
+    }
     if (state === 'bored') avatarEl.classList.add('avatar-bored');
+    if (avatarLimbsEl) {
+        avatarLimbsEl.style.transform = state === 'happy' ? 'translateY(-4px)' : state === 'angry' ? 'rotate(-3deg)' : '';
+    }
     if (avatarIdleTimeout) clearTimeout(avatarIdleTimeout);
     avatarIdleTimeout = setTimeout(() => {
         setAvatarMood('neutral');
     }, 4000);
+}
+
+function spawnAvatarThrow() {
+    const container = document.getElementById('avatar-container');
+    if (!container) return;
+    const ing = INGREDIENTS[Math.floor(Math.random() * INGREDIENTS.length)];
+    const el = document.createElement('div');
+    el.className = 'thrown-ingredient';
+    el.textContent = ing.emoji || '🍲';
+    el.style.position = 'absolute';
+    el.style.left = '50%';
+    el.style.bottom = '40px';
+    el.style.transform = 'translateX(-50%)';
+    el.style.fontSize = '22px';
+    el.style.transition = 'transform 500ms ease-out, opacity 500ms ease-out';
+    el.style.opacity = '1';
+    container.appendChild(el);
+    requestAnimationFrame(() => {
+        el.style.transform = 'translate(-140px, -60px)';
+        el.style.opacity = '0';
+    });
+    setTimeout(() => {
+        if (el.parentNode) el.parentNode.removeChild(el);
+    }, 520);
 }
 
 function spawnComboStars() {
@@ -320,6 +351,9 @@ function spawnComboStars() {
     if (!effectContainer) return;
     effectContainer.innerHTML = '';
     effectContainer.classList.remove('hidden');
+    const ring = document.createElement('div');
+    ring.className = 'combo-ring';
+    effectContainer.appendChild(ring);
     for (let i = 0; i < 18; i++) {
         const star = document.createElement('div');
         star.className = 'combo-star';
@@ -606,6 +640,21 @@ function initGame() {
         avatarEl = document.createElement('div');
         avatarEl.className = 'avatar-face';
         avatarBody.appendChild(avatarEl);
+        avatarLimbsEl = document.createElement('div');
+        avatarLimbsEl.id = 'avatar-limbs';
+        const armLeft = document.createElement('div');
+        armLeft.className = 'avatar-arm left';
+        const armRight = document.createElement('div');
+        armRight.className = 'avatar-arm right';
+        const legLeft = document.createElement('div');
+        legLeft.className = 'avatar-leg left';
+        const legRight = document.createElement('div');
+        legRight.className = 'avatar-leg right';
+        avatarLimbsEl.appendChild(armLeft);
+        avatarLimbsEl.appendChild(armRight);
+        avatarLimbsEl.appendChild(legLeft);
+        avatarLimbsEl.appendChild(legRight);
+        avatarBody.appendChild(avatarLimbsEl);
         setAvatarMood('neutral');
     }
 
@@ -1213,6 +1262,7 @@ function triggerSuperCombo() {
 function findMatches() {
     let matches = new Set();
     let superComboTriggered = false;
+    let chicComboType = null;
 
     const applyExplosionAroundRun = (run) => {
         run.forEach(t => {
@@ -1262,6 +1312,7 @@ function findMatches() {
             }
             if (run.length === 4) {
                 applyLineClear(run, orientation, false);
+                chicComboType = run[0].type.id;
             }
             if (run.length >= 5) {
                 applyExplosionAroundRun(run);
@@ -1348,6 +1399,17 @@ function findMatches() {
         });
     });
     
+    if (chicComboType) {
+        for (let r = 0; r < GRID_SIZE; r++) {
+            for (let c = 0; c < GRID_SIZE; c++) {
+                const t = grid[r][c];
+                if (!isObstacleId(t.type.id) && t.type.id === chicComboType) {
+                    matches.add(t);
+                }
+            }
+        }
+    }
+
     return Array.from(matches);
 }
 
