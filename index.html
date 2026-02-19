@@ -194,15 +194,14 @@
             navigator.serviceWorker.register('sw.js')
                 .then(reg => {
                     console.log('SW enregistré');
-                    // Check for updates
                     reg.onupdatefound = () => {
                         const installingWorker = reg.installing;
+                        if (!installingWorker) return;
                         installingWorker.onstatechange = () => {
-                            if (installingWorker.state === 'installed') {
-                                if (navigator.serviceWorker.controller) {
-                                    console.log('Nouveau contenu disponible - Veuillez rafraîchir.');
-                                    // Optional: force reload
-                                    // window.location.reload(); 
+                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                const shouldReload = confirm('Une nouvelle version de DABALI est disponible. Mettre à jour maintenant ?');
+                                if (shouldReload) {
+                                    window.location.reload();
                                 }
                             }
                         };
